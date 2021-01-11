@@ -22,7 +22,7 @@ fn main() -> Result< () , String> {
                 .short("t")
                 .long("threads")
                 .takes_value(true)
-                .default_value("4")
+                .default_value("1000")
                 .help("number of threads to spawn"))
         .get_matches();
     
@@ -33,7 +33,7 @@ fn main() -> Result< () , String> {
 
     let num_threads = match matches.value_of("threads").unwrap().parse::<u16>(){
         Ok(threads) => threads,
-        _ => 4, // this should not happen, cause clap defaults to 4
+        _ => 1000, // this should not happen, cause clap defaults to 1000
     };
 
     let pool = ThreadPool::new(num_threads as usize);

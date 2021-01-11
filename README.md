@@ -11,7 +11,7 @@ FLAGS:
     -V, --version    Prints version information
 
 OPTIONS:
-    -t, --threads <threads>    number of threads to spawn [default: 4]
+    -t, --threads <threads>    number of threads to spawn [default: 1000]
 
 ARGS:
     <ip_addr>    a valid IPv4 or IPv6 address
