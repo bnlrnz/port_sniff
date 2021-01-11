@@ -26,15 +26,10 @@ fn main() -> Result< () , String> {
                 .help("number of threads to spawn"))
         .get_matches();
     
-    let ip_addr = match IpAddr::from_str(matches.value_of("ip_addr").unwrap()){
-        Ok(ip_addr) => ip_addr,
-        Err(_) => return Err("Not a valid IPv4 or IPv6 address".to_string()),
-    };
+    let ip_addr = IpAddr::from_str(matches.value_of("ip_addr").unwrap())
+        .map_err(|e| format!("Not a valid IPv4 or IPv6 address: {}", e))?;
 
-    let num_threads = match matches.value_of("threads").unwrap().parse::<u16>(){
-        Ok(threads) => threads,
-        _ => 1000, // this should not happen, cause clap defaults to 1000
-    };
+    let num_threads = matches.value_of("threads").unwrap().parse::<u16>().unwrap_or(1000);
 
     let pool = ThreadPool::new(num_threads as usize);
 
@@ -45,13 +40,10 @@ fn main() -> Result< () , String> {
         let tx = tx.clone();
         pool.execute(move || {
             let sock_addr = SocketAddr::new(ip_addr, port);
-            match TcpStream::connect_timeout(&sock_addr, Duration::from_secs(5)){
-                Ok(_) => {
+            if TcpStream::connect_timeout(&sock_addr, Duration::from_secs(5)).is_ok() {
                     print!(".");
                     io::stdout().flush().unwrap();
                     tx.send(port).unwrap();
-                },
-                Err(_) => {}
             }
         });
     }
@@ -62,8 +54,8 @@ fn main() -> Result< () , String> {
         out.push(port);
     }
 
-    println!("");
-    out.sort();
+    println!();
+    out.sort_unstable();
     for port in out {
         println!("Port {} is open", port);
     }
